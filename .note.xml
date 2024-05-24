@@ -1,0 +1,7 @@
+<note title="Discussion Venues" removeInRFC="true">
+<t>Discussion of this document takes place on the
+    HyperText Transfer Protocol Working Group mailing list (http-wg@hplb.hp.com),
+    which is archived at <eref target="https://www.ics.uci.edu/pub/ietf/http/hypermail"/>.</t>
+<t>Source for this draft and an issue tracker can be found at
+    <eref target="https://github.com/marten-seemann/draft-seemann-http-reverse-tunnel"/>.</t>
+</note>
