@@ -9,8 +9,8 @@ number:
 date:
 consensus: true
 v: 3
-area: AREA
-workgroup: httpbis
+area: "Applications"
+workgroup: "HyperText Transfer Protocol"
 keyword:
  - HTTP reverse tunnel
 
