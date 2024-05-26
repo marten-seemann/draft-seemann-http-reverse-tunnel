@@ -22,7 +22,9 @@ author:
 normative:
   QUIC: RFC9000
   HTTP-SEMANTICS: RFC9110
+  HTTP2: RFC9113
   HTTP3: RFC9114
+  HPACK: RFC7541
   QPACK: RFC9204
 
 informative:
@@ -67,6 +69,30 @@ Upgrade: reverse
 ~~~
 {: #fig-http11 title="Establishing a Reverse Tunnel over HTTP/1.1"}
 
+
+## HTTP/2
+
+### Negotiating Extension Use
+
+To indicate support for Reverse Tunneling over HTTP/2, the server (acting as the
+HTTP/2 client) sends the REVERSE_TUNNEL (see {{http2-settings}}) setting with a
+value greater than 0. It SHOULD allow a sufficient number of incoming
+bidrectional streams (see {{Section 5.1.2 of HTTP2}}).
+
+### Opening Streams
+
+The protocol defined in this documents extens the HTTP/2 streams state machine
+(see {{Section 5.1 of HTTP2}}). Once the Reverse Tunnel extension is enabled,
+the proxy can open a stream by sending a HEADERS frame. This stream is treated
+as an HTTP/2 request stream. The proxy SHALL send an HTTP/2 request, acting as
+an HTTP/2 client.
+
+### HPACK Considerations
+
+Endpoints use the same HPACK ({{HPACK}}) context for reverse streams as they use
+for streams in the regular direction.
+
+
 ## HTTP/3
 
 ### Negotiating Extension Use
@@ -80,7 +106,7 @@ layer (see {{Section 4.6 of QUIC}}).
 
 The protocol defined in this document extends HTTP/3 by defining rules for
 server-initiated bidirectional streams. Once the Reverse Tunnel extension is
-negotiated, the proxy can open a bidirectional stream and SHALL send a special
+enabled, the proxy can open a bidirectional stream and SHALL send a special
 signal value, encoded as a variable-length integer, as the first bytes of the
 stream to indicate how the remaining bytes on the stream are used.
 
@@ -133,6 +159,27 @@ Description:
 : Reverse Tunneling over HTTP
 
 Reference:
+
+: This document
+
+## HTTP/2 SETTINGS Parameter Registration {#http2-settings}
+
+The following entry is added to the "HTTP/2 Settings" registry established by
+[HTTP2]:
+
+Setting Name:
+
+: REVERSE_TUNNEL
+
+Value:
+
+: 0xf2b8cb
+
+Default:
+
+: 0
+
+Specification:
 
 : This document
 
