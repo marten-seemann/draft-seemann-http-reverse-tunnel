@@ -22,12 +22,14 @@ author:
 normative:
   QUIC: RFC9000
   HTTP-SEMANTICS: RFC9110
+  HTTP1.1: RFC7231
   HTTP2: RFC9113
   HTTP3: RFC9114
   HPACK: RFC7541
   QPACK: RFC9204
 
 informative:
+  WEBTRANSPORT-HTTP3: I-D.ietf-webtrans-http3
 
 
 --- abstract
@@ -40,8 +42,34 @@ client. It works on HTTP/1.1, HTTP/2 as well as HTTP/3.
 
 # Introduction
 
-TODO Introduction
+HTTP defines how clients can issue HTTP requests to servers. This involves
+establishing a TCP connection (for HTTP/1.1 ({{HTTP1.1}}) and HTTP/2
+({{HTTP2}})) or a QUIC connection ({{HTTP3}}) to the target server, on which the
+request is then sent.
 
+This model assumes that the server is publicly reachable. Clients cannot reach
+servers behind a firewall if the firewall blocks incoming connections.
+
+Traditionally, servers use virtual private networks (VPNs) to bypass firewall
+restrictions, allowing TCP and/or QUIC connections from a limited set of
+endpoints.
+
+This document defines a way for the (partial) role reversal of the HTTP client
+and server. The server, acting as an HTTP client, first establishes an HTTP/1.1,
+HTTP/2, or HTTP/3 connection to the proxy. This is possible, since the firewall
+only blocks incoming, but not outgoing connections. By reversing roles, the
+proxy can send HTTP requests to the server.
+
+For HTTP/1.1, this approach suffers from head-of-line blocking of requests, even
+with request pipelining. The throughput can be increased by opening multiple
+connections to the proxy.
+
+For HTTP/2, the extension defined in this document modifies the stream state
+machine to allow the proxy to open HTTP request streams to the server.
+
+For HTTP/3, this document specifies a way for the proxy to open bidirectional
+streams to the server, using the same mechanism that WebTransport over HTTP/3
+({{WEBTRANSPORT-HTTP3}}) uses."
 
 # Conventions and Definitions
 
