@@ -1241,10 +1241,10 @@ Upgrade: reverse
           <h4 id="name-negotiating-extension-use">
 <a href="#section-3.2.1" class="section-number selfRef">3.2.1. </a><a href="#name-negotiating-extension-use" class="section-name selfRef">Negotiating Extension Use</a>
           </h4>
-<p id="section-3.2.1-1">In order to indicate support for Reverse Tunneling over HTTP/3, the server
-(acting as the HTTP/3 client) sends the REVERSE_TUNNEL (see <a href="#http3-settings" class="auto internal xref">Section 5.2</a>)
-setting with a value greater than 0. It <span class="bcp14">SHOULD</span> allow a sufficient number of
-incoming bidrectional streams at the QUIC layer (see <span><a href="https://rfc-editor.org/rfc/rfc9000#section-4.6" class="relref">Section 4.6</a> of [<a href="#QUIC" class="cite xref">QUIC</a>]</span>).<a href="#section-3.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.2.1-1">To indicate support for Reverse Tunneling over HTTP/3, the server (acting as the
+HTTP/3 client) sends the REVERSE_TUNNEL setting with a value greater than 0. It
+<span class="bcp14">SHOULD</span> allow a sufficient number of incoming bidirectional streams at the QUIC
+layer (see <span><a href="https://rfc-editor.org/rfc/rfc9000#section-4.6" class="relref">Section 4.6</a> of [<a href="#QUIC" class="cite xref">QUIC</a>]</span>).<a href="#section-3.2.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="opening-streams">
@@ -1256,10 +1256,10 @@ incoming bidrectional streams at the QUIC layer (see <span><a href="https://rfc-
 server-initiated bidirectional streams. Once the Reverse Tunnel extension is
 negotiated, the proxy can open a bidirectional stream and <span class="bcp14">SHALL</span> send a special
 signal value, encoded as a variable-length integer, as the first bytes of the
-stream in order to indicate how the remaining bytes on the stream are used.<a href="#section-3.2.2-1" class="pilcrow">¶</a></p>
+stream to indicate how the remaining bytes on the stream are used.<a href="#section-3.2.2-1" class="pilcrow">¶</a></p>
 <p id="section-3.2.2-2">The signal value, 0xf2b8cb, reverses the direction of this stream: The stream is
-now treated as an HTTP/3 request stream in reverse direction. The proxy <span class="bcp14">SHALL</span>
-send an HTTP/3 request, acting as an HTTP/3 client (see <span><a href="https://rfc-editor.org/rfc/rfc9114#section-6.1" class="relref">Section 6.1</a> of [<a href="#HTTP3" class="cite xref">HTTP3</a>]</span>).<a href="#section-3.2.2-2" class="pilcrow">¶</a></p>
+now treated as an HTTP/3 request stream in the reverse direction. The proxy
+<span class="bcp14">SHALL</span> send an HTTP/3 request, acting as an HTTP/3 client (see <span><a href="https://rfc-editor.org/rfc/rfc9114#section-6.1" class="relref">Section 6.1</a> of [<a href="#HTTP3" class="cite xref">HTTP3</a>]</span>).<a href="#section-3.2.2-2" class="pilcrow">¶</a></p>
 <span id="name-bidirectional-reverse-tunne"></span><div id="fig-http3-signal">
 <figure id="figure-2">
             <div class="alignLeft art-text artwork" id="section-3.2.2-3.1">

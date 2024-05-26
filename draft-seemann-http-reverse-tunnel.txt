@@ -115,11 +115,11 @@ Table of Contents
 
 3.2.1.  Negotiating Extension Use
 
-   In order to indicate support for Reverse Tunneling over HTTP/3, the
-   server (acting as the HTTP/3 client) sends the REVERSE_TUNNEL (see
-   Section 5.2) setting with a value greater than 0.  It SHOULD allow a
-   sufficient number of incoming bidrectional streams at the QUIC layer
-   (see Section 4.6 of [QUIC]).
+   To indicate support for Reverse Tunneling over HTTP/3, the server
+   (acting as the HTTP/3 client) sends the REVERSE_TUNNEL setting with a
+   value greater than 0.  It SHOULD allow a sufficient number of
+   incoming bidirectional streams at the QUIC layer (see Section 4.6 of
+   [QUIC]).
 
 3.2.2.  Opening Streams
 
@@ -127,11 +127,11 @@ Table of Contents
    rules for server-initiated bidirectional streams.  Once the Reverse
    Tunnel extension is negotiated, the proxy can open a bidirectional
    stream and SHALL send a special signal value, encoded as a variable-
-   length integer, as the first bytes of the stream in order to indicate
-   how the remaining bytes on the stream are used.
+   length integer, as the first bytes of the stream to indicate how the
+   remaining bytes on the stream are used.
 
    The signal value, 0xf2b8cb, reverses the direction of this stream:
-   The stream is now treated as an HTTP/3 request stream in reverse
+   The stream is now treated as an HTTP/3 request stream in the reverse
    direction.  The proxy SHALL send an HTTP/3 request, acting as an
    HTTP/3 client (see Section 6.1 of [HTTP3]).
 
