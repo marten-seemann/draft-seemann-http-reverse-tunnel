@@ -32,8 +32,9 @@ informative:
 
 --- abstract
 
-TODO Abstract
-
+This document specifies an extension to HTTP that allows the establishment of
+HTTP request streams in the reverse direction, i.e. from the server to the
+client. It works on HTTP/1.1, HTTP/2 as well as HTTP/3.
 
 --- middle
 
