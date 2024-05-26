@@ -1,0 +1,242 @@
+
+
+
+
+HyperText Transfer Protocol                                   M. Seemann
+Internet-Draft                                               26 May 2024
+Intended status: Standards Track                                        
+Expires: 27 November 2024
+
+
+                      Reverse Tunneling over HTTP
+                draft-seemann-http-reverse-tunnel-latest
+
+Abstract
+
+   TODO Abstract
+
+Discussion Venues
+
+   This note is to be removed before publishing as an RFC.
+
+   Discussion of this document takes place on the HyperText Transfer
+   Protocol Working Group mailing list (http-wg@hplb.hp.com), which is
+   archived at https://www.ics.uci.edu/pub/ietf/http/hypermail.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/marten-seemann/draft-seemann-http-reverse-tunnel.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 27 November 2024.
+
+Copyright Notice
+
+   Copyright (c) 2024 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+   2.  Conventions and Definitions
+   3.  Protocol Definition
+     3.1.  HTTP/1.1
+     3.2.  HTTP/3
+       3.2.1.  Negotiating Extension Use
+       3.2.2.  Opening Streams
+       3.2.3.  QPACK Considerations
+   4.  Security Considerations
+   5.  IANA Considerations
+     5.1.  Upgrade Token Registration
+     5.2.  HTTP/3 SETTINGS Parameter Registration
+     5.3.  Frame Type Registration
+   6.  Normative References
+   Acknowledgments
+   Author's Address
+
+1.  Introduction
+
+   TODO Introduction
+
+2.  Conventions and Definitions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+3.  Protocol Definition
+
+3.1.  HTTP/1.1
+
+   HTTP/1.1 uses the HTTP ugprade mechanism (see Section 7.4 of
+   [HTTP-SEMANTICS]).
+
+   This document defines the "reverse" upgrade token.  The method of the
+   request SHALL be "GET".  The server accepts the request with a 101
+   (Switching Protocols) response.  Accepting the upgrade reverses the
+   roles of client and server.
+
+   GET /reverse-http HTTP/1.1
+   Host: example.com
+   Connection: upgrade
+   Upgrade: reverse
+
+   HTTP/1.1 101 Switching Protocols
+   Connection: upgrade
+   Upgrade: reverse
+
+           Figure 1: Establishing a Reverse Tunnel over HTTP/1.1
+
+3.2.  HTTP/3
+
+3.2.1.  Negotiating Extension Use
+
+   In order to indicate support for Reverse Tunneling over HTTP/3, the
+   server (acting as the HTTP/3 client) sends the REVERSE_TUNNEL (see
+   Section 5.2) setting with a value greater than 0.  It SHOULD allow a
+   sufficient number of incoming bidrectional streams at the QUIC layer
+   (see Section 4.6 of [QUIC]).
+
+3.2.2.  Opening Streams
+
+   The protocol defined in this document extends HTTP/3 by defining
+   rules for server-initiated bidirectional streams.  Once the Reverse
+   Tunnel extension is negotiated, the proxy can open a bidirectional
+   stream and SHALL send a special signal value, encoded as a variable-
+   length integer, as the first bytes of the stream in order to indicate
+   how the remaining bytes on the stream are used.
+
+   The signal value, 0xf2b8cb, reverses the direction of this stream:
+   The stream is now treated as an HTTP/3 request stream in reverse
+   direction.  The proxy SHALL send an HTTP/3 request, acting as an
+   HTTP/3 client (see Section 6.1 of [HTTP3]).
+
+   Bidirectional Stream {
+       Signal Value (i) = 0xf2b8cb,
+       Stream Body (..)
+   }
+
+            Figure 2: Bidirectional Reverse Tunnel stream format
+
+   This document reserves the special signal value 0xf2b8cb as a
+   REVERSE_TUNNEL_STREAM frame type.  While it is registered as an
+   HTTP/3 frame type to avoid collisions, REVERSE_TUNNEL_STREAM is not a
+   proper HTTP/3 frame, as it lacks length; it is an extension of HTTP/3
+   frame syntax that MUST be supported by any peer negotiating this
+   extension.
+
+3.2.3.  QPACK Considerations
+
+   Endpoints use the same QPACK ([QPACK]) context for reverse streams as
+   they use for streams in the regular direction.
+
+4.  Security Considerations
+
+   TODO Security
+
+5.  IANA Considerations
+
+5.1.  Upgrade Token Registration
+
+   The following entry is added to the "Hypertext Transfer Protocol
+   (HTTP) Upgrade Token Registry" registry established by Section 16.7
+   of [HTTP-SEMANTICS].
+
+   The "reverse-tunnel" label identifies HTTP/3 used as a protocol for
+   the Reverse Tunnel:
+
+   Value:  reverse-tunnel
+
+   Description:  Reverse Tunneling over HTTP
+
+   Reference:  This document
+
+5.2.  HTTP/3 SETTINGS Parameter Registration
+
+   The following entry is added to the "HTTP/3 Settings" registry
+   established by [HTTP3]:
+
+   Setting Name:  REVERSE_TUNNEL
+
+   Value:  0xf2b8cc
+
+   Default:  0
+
+   Specification:  This document
+
+5.3.  Frame Type Registration
+
+   The following entry is added to the "HTTP/3 Frame Type" registry
+   established by [HTTP3]:
+
+   The REVERSE_TUNNEL_STREAM frame is reserved for the purpose of
+   avoiding collision with the Reverse Tunnel extensions:
+
+   Code:  0xf2b8cd
+
+   Frame Type:  REVERSE_TUNNEL_STREAM
+
+   Specification:  This document
+
+6.  Normative References
+
+   [HTTP-SEMANTICS]
+              Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
+              Ed., "HTTP Semantics", STD 97, RFC 9110,
+              DOI 10.17487/RFC9110, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9110>.
+
+   [HTTP3]    Bishop, M., Ed., "HTTP/3", RFC 9114, DOI 10.17487/RFC9114,
+              June 2022, <https://www.rfc-editor.org/rfc/rfc9114>.
+
+   [QPACK]    Krasic, C., Bishop, M., and A. Frindell, Ed., "QPACK:
+              Field Compression for HTTP/3", RFC 9204,
+              DOI 10.17487/RFC9204, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9204>.
+
+   [QUIC]     Iyengar, J., Ed. and M. Thomson, Ed., "QUIC: A UDP-Based
+              Multiplexed and Secure Transport", RFC 9000,
+              DOI 10.17487/RFC9000, May 2021,
+              <https://www.rfc-editor.org/rfc/rfc9000>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+Acknowledgments
+
+   TODO acknowledge.
+
+Author's Address
+
+   Marten Seemann
+   Email: martenseemann@gmail.com
