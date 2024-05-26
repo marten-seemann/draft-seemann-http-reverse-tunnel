@@ -20,7 +20,10 @@ author:
     email: martenseemann@gmail.com
 
 normative:
+  QUIC: RFC9000
   HTTP-SEMANTICS: RFC9110
+  HTTP3: RFC9114
+  QPACK: RFC9204
 
 informative:
 
@@ -64,6 +67,48 @@ Upgrade: reverse
 ~~~
 {: #fig-http11 title="Establishing a Reverse Tunnel over HTTP/1.1"}
 
+## HTTP/3
+
+### Negotiating Extension Use
+
+To indicate support for Reverse Tunneling over HTTP/3, the server (acting as the
+HTTP/3 client) sends the REVERSE_TUNNEL setting with a value greater than 0. It
+SHOULD allow a sufficient number of incoming bidirectional streams at the QUIC
+layer (see {{Section 4.6 of QUIC}}).
+
+### Opening Streams
+
+The protocol defined in this document extends HTTP/3 by defining rules for
+server-initiated bidirectional streams. Once the Reverse Tunnel extension is
+negotiated, the proxy can open a bidirectional stream and SHALL send a special
+signal value, encoded as a variable-length integer, as the first bytes of the
+stream to indicate how the remaining bytes on the stream are used.
+
+The signal value, 0xf2b8cb, reverses the direction of this stream: The stream is
+now treated as an HTTP/3 request stream in the reverse direction. The proxy
+SHALL send an HTTP/3 request, acting as an HTTP/3 client (see {{Section 6.1 of
+HTTP3}}).
+
+~~~
+Bidirectional Stream {
+    Signal Value (i) = 0xf2b8cb,
+    Stream Body (..)
+}
+~~~
+{: #fig-http3-signal title="Bidirectional Reverse Tunnel stream format"}
+
+This document reserves the special signal value 0xf2b8cb as a
+REVERSE_TUNNEL_STREAM frame type. While it is registered as an HTTP/3 frame type
+to avoid collisions, REVERSE_TUNNEL_STREAM is not a proper HTTP/3 frame, as it
+lacks length; it is an extension of HTTP/3 frame syntax that MUST be supported
+by any peer negotiating this extension.
+
+
+### QPACK Considerations {#qpack}
+
+Endpoints use the same QPACK ({{QPACK}}) context for reverse streams as they use
+for streams in the regular direction.
+
 
 # Security Considerations
 
@@ -91,6 +136,47 @@ Reference:
 
 : This document
 
+## HTTP/3 SETTINGS Parameter Registration {#http3-settings}
+
+The following entry is added to the "HTTP/3 Settings" registry established by
+[HTTP3]:
+
+Setting Name:
+
+: REVERSE_TUNNEL
+
+Value:
+
+: 0xf2b8cc
+
+Default:
+
+: 0
+
+Specification:
+
+: This document
+
+
+## Frame Type Registration
+
+The following entry is added to the "HTTP/3 Frame Type" registry established by
+[HTTP3]:
+
+The `REVERSE_TUNNEL_STREAM` frame is reserved for the purpose of avoiding
+collision with the Reverse Tunnel extensions:
+
+Code:
+
+: 0xf2b8cd
+
+Frame Type:
+
+: REVERSE_TUNNEL_STREAM
+
+Specification:
+
+: This document
 
 
 --- back
