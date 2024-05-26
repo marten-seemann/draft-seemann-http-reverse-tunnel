@@ -108,6 +108,9 @@ HTTP/2 client) sends the REVERSE_TUNNEL (see {{http2-settings}}) setting with a
 value greater than 0. It SHOULD allow a sufficient number of incoming
 bidrectional streams (see {{Section 5.1.2 of HTTP2}}).
 
+A sender MUST NOT send a REVERSE_TUNNEL setting with a value of 0 after
+previously sending a value greater than 0.
+
 ### Opening Streams
 
 The protocol defined in this documents extens the HTTP/2 streams state machine
