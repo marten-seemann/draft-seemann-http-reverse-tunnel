@@ -1295,6 +1295,8 @@ Upgrade: reverse
 HTTP/2 client) sends the REVERSE_TUNNEL (see <a href="#http2-settings" class="auto internal xref">Section 5.2</a>) setting with a
 value greater than 0. It <span class="bcp14">SHOULD</span> allow a sufficient number of incoming
 bidrectional streams (see <span><a href="https://rfc-editor.org/rfc/rfc9113#section-5.1.2" class="relref">Section 5.1.2</a> of [<a href="#HTTP2" class="cite xref">HTTP2</a>]</span>).<a href="#section-3.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.2.1-2">A sender <span class="bcp14">MUST NOT</span> send a REVERSE_TUNNEL setting with a value of 0 after
+previously sending a value greater than 0.<a href="#section-3.2.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="opening-streams">
