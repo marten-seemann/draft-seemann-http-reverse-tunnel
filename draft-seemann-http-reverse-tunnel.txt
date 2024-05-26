@@ -108,10 +108,9 @@ Table of Contents
    outgoing connections.  By reversing roles, the proxy can send HTTP
    requests to the server.
 
-   For HTTP/1.1, this approach is limited to handling a single request
-   per network round-trip time, even with request pipelining.  The
-   throughput can be increased by opening multiple connections to the
-   proxy.
+   For HTTP/1.1, this approach suffers from head-of-line blocking of
+   requests, even with request pipelining.  The throughput can be
+   increased by opening multiple connections to the proxy.
 
    For HTTP/2, the extension defined in this document modifies the
    stream state machine to allow the proxy to open HTTP request streams
