@@ -36,16 +36,17 @@ informative:
 
 This document specifies an extension to HTTP that allows the establishment of
 HTTP request streams in the reverse direction, i.e. from the server to the
-client. It works on HTTP/1.1, HTTP/2 as well as HTTP/3.
+client. This allows proxying HTTP requests to a server behind a firewall. The
+protocol works on HTTP/1.1, HTTP/2 as well as HTTP/3.
 
 --- middle
 
 # Introduction
 
-HTTP defines how clients can issue HTTP requests to servers. This involves
-establishing a TCP connection (for HTTP/1.1 ({{HTTP1.1}}) and HTTP/2
-({{HTTP2}})) or a QUIC connection ({{HTTP3}}) to the target server, on which the
-request is then sent.
+HTTP ({{HTTP-SEMANTICS}}) defines how clients can issue HTTP requests to
+servers. This involves establishing a TCP connection (for HTTP/1.1 ({{HTTP1.1}})
+and HTTP/2 ({{HTTP2}})) or a QUIC connection ({{HTTP3}}) to the target server,
+on which the request is then sent.
 
 This model assumes that the server is publicly reachable. Clients cannot reach
 servers behind a firewall if the firewall blocks incoming connections.
@@ -56,20 +57,24 @@ endpoints.
 
 This document defines a way for the (partial) role reversal of the HTTP client
 and server. The server, acting as an HTTP client, first establishes an HTTP/1.1,
-HTTP/2, or HTTP/3 connection to the proxy. This is possible, since the firewall
-only blocks incoming, but not outgoing connections. By reversing roles, the
-proxy can send HTTP requests to the server.
+HTTP/2, or HTTP/3 connection to the proxy. This is possible since firewalls are
+usually configured to block incoming, but not outgoing connections. By reversing
+the roles of HTTP client and server, the proxy can send HTTP requests to the
+server.
 
-For HTTP/1.1, this approach suffers from head-of-line blocking of requests, even
+The extension defined in this document defines how this role reversal can be
+achieved on all HTTP versions.
+
+For HTTP/1.1, the approach suffers from head-of-line blocking of requests, even
 with request pipelining. The throughput can be increased by opening multiple
 connections to the proxy.
 
-For HTTP/2, the extension defined in this document modifies the stream state
-machine to allow the proxy to open HTTP request streams to the server.
+For HTTP/2, the stream state machine is slightly modified to allow the proxy to
+open HTTP request streams to the server.
 
 For HTTP/3, this document specifies a way for the proxy to open bidirectional
 streams to the server, using the same mechanism that WebTransport over HTTP/3
-({{WEBTRANSPORT-HTTP3}}) uses."
+({{WEBTRANSPORT-HTTP3}}) uses.
 
 # Conventions and Definitions
 
@@ -83,8 +88,8 @@ HTTP/1.1 uses the HTTP ugprade mechanism (see {{Section 7.4 of
 HTTP-SEMANTICS}}).
 
 This document defines the "reverse" upgrade token. The method of the request
-SHALL be "GET". The server accepts the request with a 101 (Switching Protocols)
-response. Accepting the upgrade reverses the roles of client and server.
+SHALL be "GET". The proxy accepts the request with a 101 (Switching Protocols)
+response.
 
 ~~~
 GET /reverse-http HTTP/1.1
