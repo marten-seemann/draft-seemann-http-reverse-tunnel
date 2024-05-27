@@ -9,7 +9,8 @@
 <meta content="
        This document specifies an extension to HTTP that allows the establishment of
 HTTP request streams in the reverse direction, i.e. from the server to the
-client. It works on HTTP/1.1, HTTP/2 as well as HTTP/3. 
+client. This allows proxying HTTP requests to a server behind a firewall. The
+protocol works on HTTP/1.1, HTTP/2 as well as HTTP/3. 
     " name="description">
 <meta content="xml2rfc 3.21.0" name="generator">
 <meta content="HTTP reverse tunnel" name="keyword">
@@ -1031,7 +1032,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Seemann</td>
-<td class="center">Expires 27 November 2024</td>
+<td class="center">Expires 28 November 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1044,12 +1045,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-seemann-http-reverse-tunnel-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-05-26" class="published">26 May 2024</time>
+<time datetime="2024-05-27" class="published">27 May 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-11-27">27 November 2024</time></dd>
+<dd class="expires"><time datetime="2024-11-28">28 November 2024</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1063,7 +1064,8 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">This document specifies an extension to HTTP that allows the establishment of
 HTTP request streams in the reverse direction, i.e. from the server to the
-client. It works on HTTP/1.1, HTTP/2 as well as HTTP/3.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+client. This allows proxying HTTP requests to a server behind a firewall. The
+protocol works on HTTP/1.1, HTTP/2 as well as HTTP/3.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-discussion-venues">
@@ -1095,7 +1097,7 @@ client. It works on HTTP/1.1, HTTP/2 as well as HTTP/3.<a href="#section-abstrac
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 27 November 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 28 November 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1212,10 +1214,10 @@ client. It works on HTTP/1.1, HTTP/2 as well as HTTP/3.<a href="#section-abstrac
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">HTTP defines how clients can issue HTTP requests to servers. This involves
-establishing a TCP connection (for HTTP/1.1 (<span>[<a href="#HTTP1.1" class="cite xref">HTTP1.1</a>]</span>) and HTTP/2
-(<span>[<a href="#HTTP2" class="cite xref">HTTP2</a>]</span>)) or a QUIC connection (<span>[<a href="#HTTP3" class="cite xref">HTTP3</a>]</span>) to the target server, on which the
-request is then sent.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-1">HTTP (<span>[<a href="#HTTP-SEMANTICS" class="cite xref">HTTP-SEMANTICS</a>]</span>) defines how clients can issue HTTP requests to
+servers. This involves establishing a TCP connection (for HTTP/1.1 (<span>[<a href="#HTTP1.1" class="cite xref">HTTP1.1</a>]</span>)
+and HTTP/2 (<span>[<a href="#HTTP2" class="cite xref">HTTP2</a>]</span>)) or a QUIC connection (<span>[<a href="#HTTP3" class="cite xref">HTTP3</a>]</span>) to the target server,
+on which the request is then sent.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">This model assumes that the server is publicly reachable. Clients cannot reach
 servers behind a firewall if the firewall blocks incoming connections.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">Traditionally, servers use virtual private networks (VPNs) to bypass firewall
@@ -1223,17 +1225,20 @@ restrictions, allowing TCP and/or QUIC connections from a limited set of
 endpoints.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">This document defines a way for the (partial) role reversal of the HTTP client
 and server. The server, acting as an HTTP client, first establishes an HTTP/1.1,
-HTTP/2, or HTTP/3 connection to the proxy. This is possible, since the firewall
-only blocks incoming, but not outgoing connections. By reversing roles, the
-proxy can send HTTP requests to the server.<a href="#section-1-4" class="pilcrow">¶</a></p>
-<p id="section-1-5">For HTTP/1.1, this approach suffers from head-of-line blocking of requests, even
+HTTP/2, or HTTP/3 connection to the proxy. This is possible since firewalls are
+usually configured to block incoming, but not outgoing connections. By reversing
+the roles of HTTP client and server, the proxy can send HTTP requests to the
+server.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5">The extension defined in this document defines how this role reversal can be
+achieved on all HTTP versions.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6">For HTTP/1.1, the approach suffers from head-of-line blocking of requests, even
 with request pipelining. The throughput can be increased by opening multiple
-connections to the proxy.<a href="#section-1-5" class="pilcrow">¶</a></p>
-<p id="section-1-6">For HTTP/2, the extension defined in this document modifies the stream state
-machine to allow the proxy to open HTTP request streams to the server.<a href="#section-1-6" class="pilcrow">¶</a></p>
-<p id="section-1-7">For HTTP/3, this document specifies a way for the proxy to open bidirectional
+connections to the proxy.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-7">For HTTP/2, the stream state machine is slightly modified to allow the proxy to
+open HTTP request streams to the server.<a href="#section-1-7" class="pilcrow">¶</a></p>
+<p id="section-1-8">For HTTP/3, this document specifies a way for the proxy to open bidirectional
 streams to the server, using the same mechanism that WebTransport over HTTP/3
-(<span>[<a href="#WEBTRANSPORT-HTTP3" class="cite xref">WEBTRANSPORT-HTTP3</a>]</span>) uses."<a href="#section-1-7" class="pilcrow">¶</a></p>
+(<span>[<a href="#WEBTRANSPORT-HTTP3" class="cite xref">WEBTRANSPORT-HTTP3</a>]</span>) uses.<a href="#section-1-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions-and-definitions">
@@ -1259,8 +1264,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         </h3>
 <p id="section-3.1-1">HTTP/1.1 uses the HTTP ugprade mechanism (see <span><a href="https://rfc-editor.org/rfc/rfc9110#section-7.4" class="relref">Section 7.4</a> of [<a href="#HTTP-SEMANTICS" class="cite xref">HTTP-SEMANTICS</a>]</span>).<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 <p id="section-3.1-2">This document defines the "reverse" upgrade token. The method of the request
-<span class="bcp14">SHALL</span> be "GET". The server accepts the request with a 101 (Switching Protocols)
-response. Accepting the upgrade reverses the roles of client and server.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+<span class="bcp14">SHALL</span> be "GET". The proxy accepts the request with a 101 (Switching Protocols)
+response.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
 <span id="name-establishing-a-reverse-tunn"></span><div id="fig-http11">
 <figure id="figure-1">
           <div class="alignLeft art-text artwork" id="section-3.1-3.1">
