@@ -1,0 +1,87 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2024-05-28T00:01:26.932706+00:00",
+  "repo": "marten-seemann/draft-seemann-http-reverse-tunnel",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [
+    {
+      "number": 1,
+      "id": "I_kwDOL_5Tnc6KIQiG",
+      "title": "check if reusing the QPACK context is sound",
+      "url": "https://github.com/marten-seemann/draft-seemann-http-reverse-tunnel/issues/1",
+      "state": "OPEN",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "It definitely works with the static table, but we should take a long hard look at the QPACK RFC to see if there are any pitfalls when using the dynamic table.\r\n\r\nAlternatively, we could create a separate QPACK context for streams in the reverse direction. This might necessitate sending QPACK_MAX_TABLE_CAPACITY and QPACK_BLOCKED_STREAMS that apply in the reverse direction (or reusing the existing values), and creating separate QPACK control streams in the reverse direction.",
+      "createdAt": "2024-05-26T03:51:37Z",
+      "updatedAt": "2024-05-26T03:51:37Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 2,
+      "id": "I_kwDOL_5Tnc6KJTbp",
+      "title": "proxying WebSocket and WebTransport",
+      "url": "https://github.com/marten-seemann/draft-seemann-http-reverse-tunnel/issues/2",
+      "state": "OPEN",
+      "author": "marten-seemann",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Proxying WebSocket on HTTP/1.1 is easy: The proxy sends the CONNECT request on the reserved connection.\r\n\r\nIt's not quite as straightforward on HTTP/2 and HTTP/3: These HTTP versions need the respective version of Extended CONNECT (RFC 8441 and RFC 9220, respectively). Support for Extended CONNECT needs to be enabled using a SETTING, and the RFCs only specify this setting in the server to client direction.\r\n\r\nThere are two ways to solve this:\r\n1. Extend the protocol definition of Extended CONNECT, and assign meaning to the settings value in the client to server direction.\r\n2. Introduce a REVERSE_SETTINGS frame that carries HTTP(/2 and /3) settings that apply in the reverse direction. We probably need to be careful to exclude some of the settings already sent in the normal SETTINGS frame (e.g. stream limits).\r\n\r\n(2) has the advantage that it covers both existing and future extensions. In particular, WebTransports over HTTP/3 defines the SETTINGS_WEBTRANSPORT_MAX_SESSIONS setting, which is only sent from the server to the client. It would also allow us to use a separate QPACK context (see #1).",
+      "createdAt": "2024-05-26T12:55:53Z",
+      "updatedAt": "2024-05-26T12:55:53Z",
+      "closedAt": null,
+      "comments": []
+    }
+  ],
+  "pulls": []
+}
